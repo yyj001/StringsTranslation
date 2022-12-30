@@ -55,8 +55,9 @@ func DeleteString(context *gin.Context) {
 func ModifyString(context *gin.Context) {
 	var datas []TableStrings
 	var data TableStrings
+	modifyId := context.Query("id")
 	err := context.ShouldBind(&data)
-	db.Where("id = ?", data.ID).Find(&datas)
+	db.Where("id = ?", modifyId).Find(&datas)
 	if len(datas) == 0 {
 		OnError("没有该文案记录", context)
 		return
@@ -66,7 +67,7 @@ func ModifyString(context *gin.Context) {
 		return
 	}
 	//修改
-	db.Where("id = ?", data.ID).Updates(&data)
+	db.Where("id = ?", modifyId).Updates(&data)
 	OnSuccess(context)
 	isNeedUpdateFile = true
 }
