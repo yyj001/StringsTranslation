@@ -42,6 +42,9 @@ func GenerateStringsFile(context *gin.Context) {
 	var languageMaps map[string]map[string]string
 	languageMaps = make(map[string]map[string]string)
 	for _, strRecord := range stringRecords {
+		if len(strRecord.Name) == 0 {
+			continue
+		}
 		var stringLans []StringJsonElement
 		err := json.Unmarshal([]byte(strRecord.TranslateStrs), &stringLans)
 		if err != nil {

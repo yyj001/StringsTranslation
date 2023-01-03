@@ -15,6 +15,7 @@ func main() {
 	r.POST("strings/add", AddString)
 	r.POST("strings/modify", ModifyString)
 	r.GET("strings/delete", DeleteString)
+	r.GET("strings/query", QueryString)
 	r.GET("strings/download", DownloadStringsFile)
 
 	PORT := "9090"

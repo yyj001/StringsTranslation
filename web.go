@@ -3,21 +3,37 @@ package main
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"log"
-	"net/http"
+	"strconv"
 )
 
-func QueryString(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "get String success")
-	if r.Method == "POST" {
-		err := r.ParseForm() // 解析 url 传递的参数，对于 POST 则解析响应包的主体（request body）
-		if err != nil {
-			log.Fatal("ParseForm: ", err)
-		}
-		// 请求的是登录数据，那么执行登录的逻辑判断
-		fmt.Println("pCursor:", r.Form["pCursor"])
-		fmt.Println("word:", r.Form["word"])
+func QueryString(context *gin.Context) {
+	var datas []TableStrings
+	word := context.Query("word")
+	pageSize, _ := strconv.Atoi(context.Query("pageSize"))
+	pageCursor, _ := strconv.Atoi(context.Query("pageCursor"))
+	if pageSize <= 0 {
+		OnError("pageSize 必须大于0", context)
+		return
 	}
+	if pageCursor <= 0 {
+		OnError("pageCursor 必须大于0", context)
+		return
+	}
+	offset := (pageCursor - 1) * pageSize
+	if len(word) == 0 {
+		db.Limit(pageSize).Offset(offset).Find(&datas)
+	} else {
+		db.Where("translate_strs LIKE ?", "%"+word+"%").Limit(pageSize).Offset(offset).Find(&datas)
+	}
+	context.JSON(200, gin.H{
+		"message": "success",
+		"code":    "200",
+		"data": gin.H{
+			"total":      len(datas),
+			"pageCursor": pageCursor,
+			"list":       datas,
+		},
+	})
 }
 
 func AddString(context *gin.Context) {
